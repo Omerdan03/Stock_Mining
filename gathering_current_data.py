@@ -51,8 +51,5 @@ def main():
         write_to_file(web_string, category_name)
 
 
-
-
-
 if __name__ == '__main__':
     main()
