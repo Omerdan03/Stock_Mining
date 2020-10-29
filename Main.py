@@ -7,7 +7,7 @@ URLs = [r"https://finance.yahoo.com/cryptocurrencies?offset=0&count=100",
         r"https://finance.yahoo.com/most-active?offset=0&count=100",
         r"https://finance.yahoo.com/gainers?offset=0&count=100",
         r"https://finance.yahoo.com/losers?offset=0&count=100",]
-WEB_NAMEs = [r"crypto", r"active", "gainers", "losers"]
+WEB_NAMEs = [r"crypto", r"active", r"gainers", r"losers"]
 CATEGORIES = zip(URLs, WEB_NAMEs)
 PATH = "data/"
 
