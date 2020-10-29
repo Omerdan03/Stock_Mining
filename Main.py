@@ -1,13 +1,18 @@
-import urllib.error
-import urllib.parse
 import urllib.request
 import csv
+import datetime
+import os
 
-URL = r"https://finance.yahoo.com/cryptocurrencies?offset=0&count=100"
+URLs = [r"https://finance.yahoo.com/cryptocurrencies?offset=0&count=100",
+        r"https://finance.yahoo.com/most-active?offset=0&count=100",
+        r"https://finance.yahoo.com/gainers?offset=0&count=100",
+        r"https://finance.yahoo.com/losers?offset=0&count=100",]
+WEB_NAMEs = [r"crypto", r"active", "gainers", "losers"]
+CATEGORIES = zip(URLs, WEB_NAMEs)
+PATH = "data/"
 
 
-
-def download_page(url):
+def download_page(url: str) -> str:
     """
     # This function receives an url address and returns a string with the html file
     :param url: string with an url address
@@ -18,30 +23,34 @@ def download_page(url):
     return web_content
 
 
-def write_to_file(web_string, web_title):
+def write_to_file(web_string: str, web_title: str) -> str:
     """
     This function  gets a string of html file and writes it into a local file with the date
-    :param input_list: String
+    :param web_string: String
+    :param web_title: String
     :return True/False weather the input is integers separated by spaces
     """
-    if type(input_list) != str:
-        return False
-    for element in input_list.split(" "):
-        if len(element) > 0:
-            if element[0] == "-":
-                element = element[1:]
-        if not element.isnumeric():
-            return False
-    return True
+    folder = PATH+web_title
+    if not os.path.exists(folder):
+        os.makedirs(str(folder))
+    time = str(datetime.datetime.now())[:16].replace(" ", "-")
+    file_name = folder+"/"+web_title+"_"+time+".html"
+    with open(file_name, 'wb') as file:
+        file.write(web_string)
 
 
 def main():
+    if not os.path.exists(PATH):
+        os.makedirs(str(PATH))
+    print(os.getcwd())
+    for category in CATEGORIES:
+        url = category[0]
+        category_name = category[1]
+        print("Computing for: {}".format(category_name))
+        web_string = download_page(url)
+        write_to_file(web_string, category_name)
 
-    url = URL
-    web_string = download_page(url)
-    write_to_file(web_string)
-    with open('page.html', 'wb') as file:
-        file.write(web_string)
+
 
 
 
