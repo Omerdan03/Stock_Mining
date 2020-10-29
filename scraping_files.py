@@ -1,25 +1,36 @@
 import os
+import re
 
 
 PATH = "data/"
-CATEGORIES = [r"crypto", r"active", r"gainers", r"losers"]
+CATEGORIES = [r"crypto"]#, r"active", r"gainers", r"losers"]
 
 
-def download_page(url: str) -> str:
+def get_price(file_name: str) -> float:
     """
     # This function receives an url address and returns a string with the html file
-    :param url: string with an url address
+    :param file_name: string with an url address
     :return: string with the list
     """
-    response = urllib.request.urlopen(url)
-    web_content = response.read()
-    return web_content
+    with open(file_name) as file:
+        file_string = file.read()
+    location = file_string.find('title="Bitcoin USD"')
+    stock = re.search("/\w+/", file_name).group()[1:-1]
+    print(stock)
+    date = file_name[-21:-5]
+    print(date)
+    print(file_string[location+514:location+523])
+
+
 
 
 def main():
     for category in CATEGORIES:
         files = os.listdir(PATH+category)
         print(files)
+        for file in files:
+            path = PATH+category+"/"+file
+            get_price(path)
 
 
 
