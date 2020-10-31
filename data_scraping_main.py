@@ -1,10 +1,12 @@
 import csv
-import urllib
 import requests
 from bs4 import BeautifulSoup
+import datetime
+import selenium
 
 
 STOCK_URLS = "data_urls.csv"
+HEADERS = ['Date', 'Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
 
 
 def get_urls(url_input) -> list:
@@ -33,26 +35,45 @@ def make_soup(url: str) -> BeautifulSoup:
     return soup
 
 
+def date_str_to_datetime(date_str: str) -> datetime:
+    """
+    This function receives a date in a string format and returns the same date as datetime object
+    :param date_str: string of a date
+    :return: datetime object of the same date
+    """
+    date_time_obj = datetime.datetime.strptime(date_str.replace(',', ''), '%b %d %Y')
+    return date_time_obj
+
+
 def get_site_info(soup: BeautifulSoup) -> list:
     """
     This function gets a BeautifulSoup Object and return the useful information from that file
     :param soup:
     :return:
     """
-    data_table = soup.find('table')
-
-    print(data_table)
+    data_table = soup.find('table').find('tbody')
+    rows = data_table.find_all('tr')
+    stock_data = {}
+    for row in rows:
+        items = row.find_all('span')
+        row_data = []
+        for item in items[1:]:
+            row_data.append(float(item.text.replace(',', '')))
+        date = date_str_to_datetime(items[0].text)
+        stock_data[date] = row_data
+    return stock_data
 
 
 def main():
     urls = get_urls(STOCK_URLS)
     soups_list = {}
-    for url in urls:
+    for url in urls[:1]:
         stock = url[0]
         print("Making {} soup".format(stock))
         soup = make_soup(url[1])
         soups_list[stock] = soup
         info = get_site_info(soup)
+        print(info)
 
 
 
