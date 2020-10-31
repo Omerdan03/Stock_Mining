@@ -16,10 +16,10 @@ def get_price(file_name: str) -> float:
         file_string = file.read()
     location = file_string.find('title="Bitcoin USD"')
     stock = re.search("/\w+/", file_name).group()[1:-1]
-    print(stock)
     date = file_name[-21:-5]
-    print(date)
-    print(file_string[location+514:location+523])
+    value = float(file_string[location+514:location+523].replace(",", ""))
+    print("{} value at {}: {}".format(stock, date, value))
+
 
 
 
@@ -27,7 +27,7 @@ def get_price(file_name: str) -> float:
 def main():
     for category in CATEGORIES:
         files = os.listdir(PATH+category)
-        print(files)
+        files.sort()
         for file in files:
             path = PATH+category+"/"+file
             get_price(path)
