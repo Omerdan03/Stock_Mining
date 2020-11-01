@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import datetime
 from selenium import webdriver
 import time
-"comment2"
+
 STOCK_URLS = "data_urls.csv"
 HEADERS = ['Date', 'Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
 
