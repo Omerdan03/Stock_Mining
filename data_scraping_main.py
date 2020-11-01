@@ -2,8 +2,8 @@ import csv
 import requests
 from bs4 import BeautifulSoup
 import datetime
-import selenium
-
+from selenium import webdriver
+import time
 
 STOCK_URLS = "data_urls.csv"
 HEADERS = ['Date', 'Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
@@ -22,6 +22,34 @@ def get_urls(url_input) -> list:
         for row in reader:
             stock_index.append((row[0], row[1]))
     return stock_index[1:]
+
+
+def scrolled_html(url, timeout):  # TODO: infinite scrolling
+    """
+
+    :param url:
+    :param timeout:
+    :return:
+    """
+
+    scroll_pause_time = timeout
+    driver = webdriver.chrome
+    # Get scroll height
+    last_height = driver.execute_script("return document.body.scrollHeight")
+
+    while True:
+        # Scroll down to bottom
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
+        # Wait to load page
+        time.sleep(scroll_pause_time)
+
+        # Calculate new scroll height and compare with last scroll height
+        new_height = driver.execute_script("return document.body.scrollHeight")
+        if new_height == last_height:
+            # If heights are the same it will exit the function
+            break
+        last_height = new_height
 
 
 def make_soup(url: str) -> BeautifulSoup:
@@ -48,26 +76,27 @@ def date_str_to_datetime(date_str: str) -> datetime:
 def get_site_info(soup: BeautifulSoup) -> list:
     """
     This function gets a BeautifulSoup Object and return the useful information from that file
-    :param soup:
-    :return:
+    :param soup: A BeautifulSoup object from one of the stock website.
+    :return: List of the useful information from the soup ['Date', 'Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
     """
     data_table = soup.find('table').find('tbody')
     rows = data_table.find_all('tr')
-    stock_data = {}
+    stock_data = []
     for row in rows:
         items = row.find_all('span')
-        row_data = []
-        for item in items[1:]:
-            row_data.append(float(item.text.replace(',', '')))
         date = date_str_to_datetime(items[0].text)
-        stock_data[date] = row_data
+        row_data = [date]
+        for item in items[1:2]:
+            row_data.append(float(item.text.replace(',', '')))
+
+        stock_data.append(row_data)
     return stock_data
 
 
 def main():
     urls = get_urls(STOCK_URLS)
     soups_list = {}
-    for url in urls[:1]:
+    for url in urls[0:1]:
         stock = url[0]
         print("Making {} soup".format(stock))
         soup = make_soup(url[1])
@@ -75,8 +104,8 @@ def main():
         info = get_site_info(soup)
         print(info)
 
-
-
+        #  TODO: add tests
+        #  TODO: save data and get deltas from last run
 
 
 if __name__ == '__main__':
