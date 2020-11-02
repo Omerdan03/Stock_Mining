@@ -23,45 +23,33 @@ def get_urls(url_input) -> list:
             stock_index.append((row[0], row[1]))
     return stock_index[1:]
 
-
-def scrolled_html(url, timeout):  # TODO: infinite scrolling
-    """
-
-    :param url:
-    :param timeout:
-    :return:
-    """
-
-    scroll_pause_time = timeout
-    driver = webdriver.chrome
-    # Get scroll height
-    last_height = driver.execute_script("return document.body.scrollHeight")
-
-    while True:
-        # Scroll down to bottom
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-
-        # Wait to load page
-        time.sleep(scroll_pause_time)
-
-        # Calculate new scroll height and compare with last scroll height
-        new_height = driver.execute_script("return document.body.scrollHeight")
-        if new_height == last_height:
-            # If heights are the same it will exit the function
-            break
-        last_height = new_height
-
-
 def make_soup(url: str) -> BeautifulSoup:
     """
     This function gets a url of stocks and returns BeautifulSoup object of that web
     :param url: a url of a web page
     :return: BeautifulSoup Object of the file
     """
-    source = requests.get(url).text
-    soup = BeautifulSoup(source, 'lxml')
-    return soup
+    driver = webdriver.Chrome()
+    driver.get(url)
+    scroll_pause_time = 10
+    last_height = driver.execute_script("return document.documentElement.scrollHeight")
+    count = 0
+    while True:
+        driver.execute_script("window.scrollTo(0, document.documentElement.scrollHeight);")
 
+        new_height = driver.execute_script("return document.documentElement.scrollHeight")
+        if new_height == last_height:
+            time.sleep(1)
+            new_height = driver.execute_script("return document.documentElement.scrollHeight")
+            if new_height == last_height:
+                break
+        last_height = new_height
+        count += 1
+        if count % 20 == 0:
+            print(count)
+    soup = BeautifulSoup(driver.page_source, "html.parser")
+    driver.close()
+    return soup
 
 def date_str_to_datetime(date_str: str) -> datetime:
     """
@@ -86,7 +74,7 @@ def get_site_info(soup: BeautifulSoup) -> list:
         items = row.find_all('span')
         date = date_str_to_datetime(items[0].text)
         row_data = [date]
-        for item in items[1:2]:
+        for item in items[1:]:
             row_data.append(float(item.text.replace(',', '')))
 
         stock_data.append(row_data)
