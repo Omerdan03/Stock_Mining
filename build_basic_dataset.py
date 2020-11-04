@@ -1,16 +1,40 @@
 import csv
+from scraping_tools import *
 
-with open('data_urls.csv', 'w', newline='') as csvfile:
-    stocks = ['Stock_name', 'Yahoo_url']
-    writer = csv.DictWriter(csvfile, fieldnames=stocks)
-    writer.writeheader()
-    writer.writerow({'Stock_name': 'S&P 500', 'Yahoo_url': 'https://finance.yahoo.com/quote/%5EGSPC/history?period1=-1325635200&period2=1604102400&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true'})
-    writer.writerow({'Stock_name': 'Dow Jones Industrial Average', 'Yahoo_url': 'https://finance.yahoo.com/quote/%5EDJI/history?period1=475804800&period2=1604102400&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true'})
-    writer.writerow({'Stock_name': 'NASDAQ Composite', 'Yahoo_url': 'https://finance.yahoo.com/quote/%5EIXIC/history?period1=34560000&period2=1604102400&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true'})
-    writer.writerow({'Stock_name': 'Russell 2000', 'Yahoo_url': 'https://finance.yahoo.com/quote/%5ERUT/history?period1=558230400&period2=1604102400&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true'})
-    writer.writerow({'Stock_name': 'Crude Oil', 'Yahoo_url': 'https://finance.yahoo.com/quote/CL%3DF/history?period1=966988800&period2=1604102400&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true'})
-    writer.writerow({'Stock_name': 'Gold', 'Yahoo_url': 'https://finance.yahoo.com/quote/GC%3DF/history?period1=967593600&period2=1604102400&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true'})
-    writer.writerow({'Stock_name': 'Silver', 'Yahoo_url': 'https://finance.yahoo.com/quote/SI%3DF/history?period1=967593600&period2=1604102400&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true'})
-    writer.writerow({'Stock_name': 'EUR/USD', 'Yahoo_url': 'https://finance.yahoo.com/quote/EURUSD%3DX/history?period1=1070236800&period2=1604102400&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true'})
-    writer.writerow({'Stock_name': 'Bitcoin (USD)', 'Yahoo_url': 'https://finance.yahoo.com/quote/BTC-USD/history?period1=1410912000&period2=1604102400&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true'})
-    writer.writerow({'Stock_name': 'CMC Crypto 200 Index by Solacti', 'Yahoo_url': 'https://finance.yahoo.com/quote/%5ECMC200/history?period1=1546214400&period2=1604102400&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true'})
+MAIN_URL = "https://finance.yahoo.com"
+HISTORICAL_DATA = 3
+
+def get_urls(yahoo_main) -> list:
+    """
+    # This function recives and main url of yahoo finance and return a list with the urls for the top indexs
+    :param yahoo_main: The url for yahoo finance home web page
+    :return: list for the stocks name and urls [(stock1, stock1_url), (stock1, stock1_url), ...]
+    """
+    main_soup = make_soup(yahoo_main, scrolling=False)
+    urls = []
+    slider = main_soup.find('div', {'id': 'YDC-Lead'})
+    stocks = slider.find_all('li')
+    for stock in stocks:
+        name = stock.attrs['aria-label']
+        url = yahoo_main + stock.find('a').attrs['href']
+        stock_soup = make_soup(url, scrolling=False)
+        opt = stock_soup.find('div', {'id': 'quote-nav'})
+        hist = opt.find_all('li')[HISTORICAL_DATA]
+        url = yahoo_main + hist.find('a').attrs['href']
+        urls.append([name, url])
+
+    return urls
+
+
+def main():
+    stocks_urls = get_urls(MAIN_URL)
+    with open('data_urls.csv', 'w', newline='') as csvfile:
+        stocks = ['Stock_name', 'Yahoo_url']
+        writer = csv.DictWriter(csvfile, fieldnames=stocks)
+        writer.writeheader()
+        for stock in stocks_urls:
+            writer.writerow({"Stock_name": stock[0],
+                             'Yahoo_url': stock[1]})
+
+if __name__ == '__main__':
+    main()
