@@ -2,12 +2,14 @@ import csv
 from bs4 import BeautifulSoup
 import datetime
 from selenium import webdriver
+from scraping_tools import *
 import time
 
 STOCK_URLS = "data_urls.csv"
 HEADERS = ['Date', 'Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
 MAX_SCROLLING = 40
 MAX_YEAR = 2000
+MAIN_URL = "https://finance.yahoo.com/"
 
 
 def get_urls(url_input) -> list:
@@ -23,62 +25,6 @@ def get_urls(url_input) -> list:
         for row in reader:
             stock_index.append((row[0], row[1]))
     return stock_index[1:]
-
-
-def make_soup(url: str, stock_name) -> BeautifulSoup:
-    """
-    This function gets a url of stocks and returns BeautifulSoup object of that web
-    :param url: a url of a web page
-    :param stock_name: The name of the current stock
-    :return: BeautifulSoup Object of the file
-    """
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument("--headless")
-    driver = webdriver.Chrome(options=chrome_options)
-    driver.get(url)
-    last_height = driver.execute_script("return document.documentElement.scrollHeight")
-    year = get_year(BeautifulSoup(driver.page_source, "html.parser"))
-    while year > MAX_YEAR:
-        driver.execute_script("window.scrollTo(0, document.documentElement.scrollHeight);")
-        new_height = driver.execute_script("return document.documentElement.scrollHeight")
-        if new_height == last_height:
-            time.sleep(1)
-            new_height = driver.execute_script("return document.documentElement.scrollHeight")
-            if new_height == last_height:
-                break
-        last_height = new_height
-        year = get_year(BeautifulSoup(driver.page_source, "html.parser"))
-        print("Reached {} of {} data".format(year, stock_name))
-
-    soup = BeautifulSoup(driver.page_source, "html.parser")
-    driver.close()
-    return soup
-
-
-def get_year(soup: BeautifulSoup) -> int:
-    """
-    This function gets a soup object from Yahoo page and return the last year it has data inside it
-    :param soup: A soup object from Yahoo page
-    :return:
-    """
-    data_table = soup.find('table').find('tbody')
-    row = data_table.find_all('tr')[-1]
-    date_item = row.find('span')
-    date = date_str_to_datetime(date_item.text)
-    return date.year
-
-
-
-
-
-def date_str_to_datetime(date_str: str) -> datetime:
-    """
-    This function receives a date in a string format and returns the same date as datetime object
-    :param date_str: string of a date
-    :return: datetime object of the same date
-    """
-    date_time_obj = datetime.datetime.strptime(date_str.replace(',', ''), '%b %d %Y')
-    return date_time_obj
 
 
 def get_site_info(soup: BeautifulSoup) -> list:
@@ -107,7 +53,7 @@ def main():
     for url in urls[:]:
         stock = url[0]
         print("Making {} soup".format(stock))
-        soup = make_soup(url[1], stock)
+        soup = make_soup(url[1], scrolling=True, dis_year=True)
         soups_list[stock] = soup
         info = get_site_info(soup)
         print(info)
