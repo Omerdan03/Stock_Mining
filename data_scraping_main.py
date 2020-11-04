@@ -7,6 +7,7 @@ import time
 STOCK_URLS = "data_urls.csv"
 HEADERS = ['Date', 'Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
 MAX_SCROLLING = 40
+MAX_YEAR = 2000
 
 
 def get_urls(url_input) -> list:
@@ -36,8 +37,8 @@ def make_soup(url: str, stock_name) -> BeautifulSoup:
     driver = webdriver.Chrome(options=chrome_options)
     driver.get(url)
     last_height = driver.execute_script("return document.documentElement.scrollHeight")
-    count = 0
-    while True:
+    year = get_year(BeautifulSoup(driver.page_source, "html.parser"))
+    while year > MAX_YEAR:
         driver.execute_script("window.scrollTo(0, document.documentElement.scrollHeight);")
         new_height = driver.execute_script("return document.documentElement.scrollHeight")
         if new_height == last_height:
@@ -46,11 +47,9 @@ def make_soup(url: str, stock_name) -> BeautifulSoup:
             if new_height == last_height:
                 break
         last_height = new_height
-        if count % 1 == 0:
-            year = get_year(BeautifulSoup(driver.page_source, "html.parser"))
-            print("Reached {} of {} data".format(year, stock_name))
+        year = get_year(BeautifulSoup(driver.page_source, "html.parser"))
+        print("Reached {} of {} data".format(year, stock_name))
 
-        count += 1
     soup = BeautifulSoup(driver.page_source, "html.parser")
     driver.close()
     return soup
@@ -105,7 +104,7 @@ def get_site_info(soup: BeautifulSoup) -> list:
 def main():
     urls = get_urls(STOCK_URLS)
     soups_list = {}
-    for url in urls:
+    for url in urls[:]:
         stock = url[0]
         print("Making {} soup".format(stock))
         soup = make_soup(url[1], stock)
