@@ -1,22 +1,26 @@
-import csv
 from bs4 import BeautifulSoup
 import datetime
 from selenium import webdriver
+import selenium
 import time
 
 
-def make_soup(url: str, scrolling=True, dis_year=False) -> BeautifulSoup:
+def make_soup(url: str, scrolling=True, show_year=False) -> BeautifulSoup:
     """
     This function gets a url of stocks and returns BeautifulSoup object of all the information from that web
     :param scrolling: A flag if scrolling is needed in the site
-    :param dis_year: A flag for displaying the current year when scrolling
+    :param show_year: A flag for displaying the current year when scrolling
     :param url: a url of a web page
     :return: BeautifulSoup Object of the file
     """
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--headless")
     driver = webdriver.Chrome(options=chrome_options)
-    driver.get(url)
+    try:
+        driver.get(url)
+    except selenium.common.exceptions.WebDriverException as e:
+        print(e)
+        return None
     last_height = driver.execute_script("return document.documentElement.scrollHeight")
     while scrolling:
         driver.execute_script("window.scrollTo(0, document.documentElement.scrollHeight);")
@@ -27,7 +31,7 @@ def make_soup(url: str, scrolling=True, dis_year=False) -> BeautifulSoup:
             if new_height == last_height:
                 break
         last_height = new_height
-        if dis_year:
+        if show_year:
             year = get_year(BeautifulSoup(driver.page_source, "html.parser"))
             print("Year reached: {}".format(year))
     soup = BeautifulSoup(driver.page_source, "html.parser")
@@ -39,7 +43,7 @@ def get_year(soup: BeautifulSoup) -> int:
     """
     This function gets a soup object from Yahoo page and return the last year it has data inside it
     :param soup: A soup object from Yahoo page
-    :return:
+    :return:The year of the last row in the data
     """
     data_table = soup.find('table').find('tbody')
     row = data_table.find_all('tr')[-1]
@@ -56,3 +60,5 @@ def date_str_to_datetime(date_str: str) -> datetime:
     """
     date_time_obj = datetime.datetime.strptime(date_str.replace(',', ''), '%b %d %Y')
     return date_time_obj
+
+#  TODO Error handling

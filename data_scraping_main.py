@@ -1,18 +1,11 @@
 import csv
-from bs4 import BeautifulSoup
-import datetime
-from selenium import webdriver
 from scraping_tools import *
-import time
 
 STOCK_URLS = "data_urls.csv"
 HEADERS = ['Date', 'Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
-MAX_SCROLLING = 40
-MAX_YEAR = 2000
-MAIN_URL = "https://finance.yahoo.com/"
 
 
-def get_urls(url_input) -> list:
+def read_urls_files(url_input) -> list:
     """
     # This function read the url_index file and return a list of tuples with the stock name and url
     :return: list for the stocks name and urls [(stock1, stock1_url), (stock1, stock1_url), ...]
@@ -31,9 +24,9 @@ def get_site_info(soup: BeautifulSoup) -> list:
     """
     This function gets a BeautifulSoup Object and return the useful information from that file
     :param soup: A BeautifulSoup object from one of the stock website.
-    :return: List of the useful information from the soup ['Date', 'Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
+    :return:List of the useful information from the soup ['Date', 'Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
     """
-    data_table = soup.find('table').find('tbody')
+    data_table = soup.find('table').find('tbody')  # TODO get the headers for the columns from the top of the table
     rows = data_table.find_all('tr')
     stock_data = []
     for row in rows:
@@ -48,18 +41,18 @@ def get_site_info(soup: BeautifulSoup) -> list:
 
 
 def main():
-    urls = get_urls(STOCK_URLS)
-    soups_list = {}
+    urls = read_urls_files(STOCK_URLS)
     for url in urls[:]:
         stock = url[0]
         print("Making {} soup".format(stock))
-        soup = make_soup(url[1], scrolling=True, dis_year=True)
-        soups_list[stock] = soup
+        soup = make_soup(url[1], scrolling=True, show_year=True)
+        if soup is None:
+            continue
         info = get_site_info(soup)
         print(info)
 
-        #  TODO: add tests
         #  TODO: save data and get deltas from last run
+        #  TODO Error handling
 
 
 if __name__ == '__main__':
