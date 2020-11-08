@@ -1,12 +1,20 @@
 # Stock_Mining
 
-In this web-scraping project we go over certain pre-determined 
-stocks and gather information about them.
+Stock mining is a python program for scrapping Yahoo finance top indexes along the history and examine trends.
+Example stocks are: S&P 500, Dow Jones, NASDAQ etc.
 
-The site we are scraping for in Yahoo Finances since it contains long
-history about each stock in a ordered and continent table.
+# Installation
 
-The stocks are: S&P 500, Dow Jones Industrial Average, NASDAQ Composite, Russell 2000
-Crude Oil, Gold, Silver, EUR/USD, Bitcoin (USD) and CMC Crypto 200 Index by Solacti.
+In order to run stock mining you will need the following packages installed over basic python 3.x:
 
-We can, without much effort, add new stock to that list.    
+beautifullysoup4
+selenium
+
+# Usage
+First run build_basic_dataset.py for first setup.
+
+Then every time you need to scrape Yahoo run data_scraping_main.py
+
+
+# Contributors
+This program was build and maintained by Omer Danziger and Barak Beitner as part of \<ITC> Data Science program
