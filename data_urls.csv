@@ -1,11 +1,5 @@
 Stock_name,Yahoo_url
-S&P 500,https://finance.yahoo.com/quote/%5EGSPC/history?period1=-1325635200&period2=1604102400&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true
-Dow Jones Industrial Average,https://finance.yahoo.com/quote/%5EDJI/history?period1=475804800&period2=1604102400&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true
-NASDAQ Composite,https://finance.yahoo.com/quote/%5EIXIC/history?period1=34560000&period2=1604102400&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true
-Russell 2000,https://finance.yahoo.com/quote/%5ERUT/history?period1=558230400&period2=1604102400&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true
-Crude Oil,https://finance.yahoo.com/quote/CL%3DF/history?period1=966988800&period2=1604102400&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true
-Gold,https://finance.yahoo.com/quote/GC%3DF/history?period1=967593600&period2=1604102400&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true
-Silver,https://finance.yahoo.com/quote/SI%3DF/history?period1=967593600&period2=1604102400&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true
-EUR/USD,https://finance.yahoo.com/quote/EURUSD%3DX/history?period1=1070236800&period2=1604102400&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true
-Bitcoin USD,https://finance.yahoo.com/quote/BTC-USD/history?period1=1410912000&period2=1604102400&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true
-CMC Crypto 200 Index by Solacti,https://finance.yahoo.com/quote/%5ECMC200/history?period1=1546214400&period2=1604102400&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true
+S&P Futures,https://finance.yahoo.com/quote/ES%3DF/futures?p=ES%3DF
+Dow Futures,https://finance.yahoo.com/quote/YM%3DF/futures?p=YM%3DF
+Nasdaq Futures,https://finance.yahoo.com/quote/NQ%3DF/futures?p=NQ%3DF
+Russell 2000 Futures,https://finance.yahoo.com/quote/RTY%3DF/futures?p=RTY%3DF

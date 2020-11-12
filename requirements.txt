@@ -1,0 +1,4 @@
+in order to run the project you need to have the basic python 3.x with the following packages:
+
+bs4
+selenium
