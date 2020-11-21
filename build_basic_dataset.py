@@ -6,8 +6,6 @@ from selenium import webdriver
 MAIN_URL = "https://finance.yahoo.com"
 HISTORICAL_DATA = 3
 
-def get_browser():
-    return webdriver.Chrome('C:\\Users\\barak\\Stock_Mining\\chromedriver.exe')
 
 def load_all_slider_stocks(browser):
     financial_header = browser.find_element_by_id('Lead-3-FinanceHeader-Proxy')
@@ -45,33 +43,29 @@ def get_urls(yahoo_main) -> list:
     #     )
     # finally:
     #     browser.quit()
-    browser = get_browser()
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument("--headless")
+    browser = webdriver.Chrome(options=chrome_options)
     browser.get(yahoo_main)
     load_all_slider_stocks(browser)
-
-    main_soup = BeautifulSoup(browser.page_source)
-    # main_soup = make_soup(yahoo_main, scrolling=False)
-    # if main_soup is None:
-    #     return []
-
+    main_soup = BeautifulSoup(browser.page_source, features="lxml")
     urls = []
 
     slider = main_soup.find('div', {'id': 'YDC-Lead'})  # TODO expend the slider to show all indexes
     stocks = slider.find_all('li')
-    for stock in stocks:
+    for i, stock in enumerate(stocks):
         name = stock.attrs['aria-label']
+        print("making index of {}\n {} out of {}".format(name, i+1, len(stocks)))
         url = yahoo_main + stock.find('a').attrs['href']
         stock_soup = make_soup(url, scrolling=False)
-        if stock_soup is None:
-            continue
         opt = stock_soup.find('div', {'id': 'quote-nav'})
-        hist = opt.find_all('li')[HISTORICAL_DATA]
-        url = yahoo_main + hist.find('a').attrs['href']  # TODO expend the page to show the full history of the index
-        full_history_url = yahoo_main + hist.find('a').attrs['href'].split('p=')[
-            0] + 'period1=-3000000000&period2=3000000000&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true'
-        browser.get(full_history_url)
-        stock_history = get_all_historical_stock_data(browser) #do something with stock history?
-
+        for tab in opt.find_all('li'):
+            if tab.find('span').getText() == 'Historical Data':
+                full_history_url = yahoo_main + tab.find('a').attrs['href'].split('p=')[
+                    0] + 'period1=-3000000000&period2=3000000000&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true'
+                break
+        # browser.get(full_history_url)
+        # stock_history = get_all_historical_stock_data(browser) #do something with stock history?
         urls.append([name, full_history_url])
 
     return urls

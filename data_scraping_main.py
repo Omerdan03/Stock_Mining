@@ -24,7 +24,7 @@ def get_site_info(soup: BeautifulSoup) -> list:
     """
     This function gets a BeautifulSoup Object and return the useful information from that file
     :param soup: A BeautifulSoup object from one of the stock website.
-    :return:List of the useful information from the soup ['Date', 'Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
+    :return: List of the useful information from the soup ['Date', 'Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
     """
     data_table = soup.find('table').find('tbody')  # TODO get the headers for the columns from the top of the table
     rows = data_table.find_all('tr')
@@ -35,7 +35,6 @@ def get_site_info(soup: BeautifulSoup) -> list:
         row_data = [date]
         for item in items[1:]:
             row_data.append(float(item.text.replace(',', '')))
-
         stock_data.append(row_data)
     return stock_data
 
