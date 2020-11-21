@@ -2,4 +2,3 @@ Stock_name,Yahoo_url
 S&P Futures,https://finance.yahoo.com/quote/ES%3DF/futures?p=ES%3DF
 Dow Futures,https://finance.yahoo.com/quote/YM%3DF/futures?p=YM%3DF
 Nasdaq Futures,https://finance.yahoo.com/quote/NQ%3DF/futures?p=NQ%3DF
-Russell 2000 Futures,https://finance.yahoo.com/quote/RTY%3DF/futures?p=RTY%3DF

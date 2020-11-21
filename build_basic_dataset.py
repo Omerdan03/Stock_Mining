@@ -1,8 +1,35 @@
 import csv
+from selenium.webdriver.common.keys import Keys
 from scraping_tools import *
+from selenium import webdriver
 
 MAIN_URL = "https://finance.yahoo.com"
 HISTORICAL_DATA = 3
+
+def get_browser():
+    return webdriver.Chrome('C:\\Users\\barak\\Stock_Mining\\chromedriver.exe')
+
+def load_all_slider_stocks(browser):
+    financial_header = browser.find_element_by_id('Lead-3-FinanceHeader-Proxy')
+    next_stock_button = financial_header.find_elements_by_tag_name('button')[1]
+    while (next_stock_button.is_enabled()):
+        next_stock_button.click()
+
+
+def get_all_historical_stock_data(browser):
+    history_box = browser.find_element_by_id('Col1-1-HistoricalDataTable-Proxy')
+    loaded_history = history_box.find_elements_by_tag_name('tr')
+    previously_loaded = len(loaded_history)
+    while True:
+        #scroll down
+        html = browser.find_element_by_tag_name('html')
+        html.send_keys(Keys.END)
+        time.sleep(2)
+        loaded_history = history_box.find_elements_by_tag_name('tr')
+        if (len(loaded_history) == previously_loaded):
+            break
+        previously_loaded = len(loaded_history)
+    return loaded_history
 
 
 def get_urls(yahoo_main) -> list:
@@ -11,10 +38,24 @@ def get_urls(yahoo_main) -> list:
     :param yahoo_main: The url for yahoo finance home web page
     :return: list for the stocks name and urls [(stock1, stock1_url), (stock1, stock1_url), ...]
     """
-    main_soup = make_soup(yahoo_main, scrolling=False)
-    if main_soup is None:
-        return []
+
+    # try:
+    #     element = WebDriverWait(browser, 10).until(
+    #         EC.presence_of_element_located((By.ID, "marketsummary-itm-6"))
+    #     )
+    # finally:
+    #     browser.quit()
+    browser = get_browser()
+    browser.get(yahoo_main)
+    load_all_slider_stocks(browser)
+
+    main_soup = BeautifulSoup(browser.page_source)
+    # main_soup = make_soup(yahoo_main, scrolling=False)
+    # if main_soup is None:
+    #     return []
+
     urls = []
+
     slider = main_soup.find('div', {'id': 'YDC-Lead'})  # TODO expend the slider to show all indexes
     stocks = slider.find_all('li')
     for stock in stocks:
@@ -26,12 +67,19 @@ def get_urls(yahoo_main) -> list:
         opt = stock_soup.find('div', {'id': 'quote-nav'})
         hist = opt.find_all('li')[HISTORICAL_DATA]
         url = yahoo_main + hist.find('a').attrs['href']  # TODO expend the page to show the full history of the index
-        urls.append([name, url])
+        full_history_url = yahoo_main + hist.find('a').attrs['href'].split('p=')[
+            0] + 'period1=-3000000000&period2=3000000000&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true'
+        browser.get(full_history_url)
+        stock_history = get_all_historical_stock_data(browser) #do something with stock history?
+
+        urls.append([name, full_history_url])
 
     return urls
 
 
 def main():
+    # get the names of stocks in the main page
+    # go over each page, load it, and parse it
     stocks_urls = get_urls(MAIN_URL)
     with open('data_urls.csv', 'w', newline='') as csv_file:
         stocks = ['Stock_name', 'Yahoo_url']
