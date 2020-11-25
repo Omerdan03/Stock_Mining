@@ -1,8 +1,10 @@
 from bs4 import BeautifulSoup
 import datetime
 from selenium import webdriver
+import mysql.connector as connector
 import selenium
 import time
+from config import *
 
 
 def make_soup(url: str, scrolling=True, show_year=False) -> BeautifulSoup:
@@ -61,4 +63,31 @@ def date_str_to_datetime(date_str: str) -> datetime:
     date_time_obj = datetime.datetime.strptime(date_str.replace(',', ''), '%b %d %Y')
     return date_time_obj
 
-#  TODO Error handling
+
+def connect_to_mysql(db='stacks_db'):
+    """
+    This function uses the configuration from config.py file and returns a connection the mysql. if stacks_db doesn't
+    exists it create one according to stock_prices.sql file.
+    :return: a connection at the stacks_db database:
+    """
+    host, user, password = sql_conf.get_connection_info()
+    con = connector.connect(host=host, user=user, password=password)
+    cursor = con.cursor()
+    cursor.execute("SHOW DATABASES;")
+    db_tuples = list(cursor)
+    dbs = [db[0] for db in db_tuples]
+    if db not in dbs:
+        cursor.execute(f"CREATE DATABASE {db}")
+        cursor.execute(f"USE {db};")
+        with open("stock_prices.sql") as file:
+            new_db = file.read()
+        cursor.execute(new_db)
+    return con
+
+
+def init_db(db='stacks_db'):
+    con = connect_to_mysql()
+    cursor = con.cursor()
+    cursor.execute(f"USE {db};")
+
+

@@ -1,6 +1,6 @@
 import csv
 from scraping_tools import *
-
+from config import *
 STOCK_URLS = "data_urls.csv"
 HEADERS = ['Date', 'Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
 

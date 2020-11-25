@@ -1,4 +1,6 @@
 #in order to run the project you need to have the basic python 3.x with the following packages:
 
-bs4
-selenium
+beautifulsoup4 == 4.9.3
+selenium == 3.141.0
+requests == 2.24.0
+mysql-connector-python == 8.0.22

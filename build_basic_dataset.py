@@ -14,22 +14,6 @@ def load_all_slider_stocks(browser):
         next_stock_button.click()
 
 
-def get_all_historical_stock_data(browser):
-    history_box = browser.find_element_by_id('Col1-1-HistoricalDataTable-Proxy')
-    loaded_history = history_box.find_elements_by_tag_name('tr')
-    previously_loaded = len(loaded_history)
-    while True:
-        #scroll down
-        html = browser.find_element_by_tag_name('html')
-        html.send_keys(Keys.END)
-        time.sleep(2)
-        loaded_history = history_box.find_elements_by_tag_name('tr')
-        if (len(loaded_history) == previously_loaded):
-            break
-        previously_loaded = len(loaded_history)
-    return loaded_history
-
-
 def get_urls(yahoo_main) -> list:
     """
     # This function receives and main url of yahoo finance and return a list with the urls for the top indexes
@@ -37,12 +21,6 @@ def get_urls(yahoo_main) -> list:
     :return: list for the stocks name and urls [(stock1, stock1_url), (stock1, stock1_url), ...]
     """
 
-    # try:
-    #     element = WebDriverWait(browser, 10).until(
-    #         EC.presence_of_element_located((By.ID, "marketsummary-itm-6"))
-    #     )
-    # finally:
-    #     browser.quit()
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--headless")
     browser = webdriver.Chrome(options=chrome_options)
@@ -69,6 +47,9 @@ def get_urls(yahoo_main) -> list:
         urls.append([name, full_history_url])
 
     return urls
+
+
+
 
 
 def main():
