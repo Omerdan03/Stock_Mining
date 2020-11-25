@@ -7,7 +7,27 @@ import time
 from config import *
 
 
-def make_soup(url: str, scrolling=True, show_year=False) -> BeautifulSoup:
+def make_soup(url: str) -> BeautifulSoup:
+    """
+    This function gets a url of stocks and returns BeautifulSoup object of all the information from that web
+    :param url: a url of a web page
+    :return: BeautifulSoup Object of the site
+    """
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument("--headless")
+    driver = webdriver.Chrome(options=chrome_options)
+    try:
+        driver.get(url)
+    except selenium.common.exceptions.WebDriverException as e:
+        print(e)
+        return None
+    last_height = driver.execute_script("return document.documentElement.scrollHeight")
+    soup = BeautifulSoup(driver.page_source, "html.parser")
+    driver.close()
+    return soup
+
+
+def make_soup_scrolling(url: str, show_year=False) -> BeautifulSoup:
     """
     This function gets a url of stocks and returns BeautifulSoup object of all the information from that web
     :param scrolling: A flag if scrolling is needed in the site
@@ -24,7 +44,7 @@ def make_soup(url: str, scrolling=True, show_year=False) -> BeautifulSoup:
         print(e)
         return None
     last_height = driver.execute_script("return document.documentElement.scrollHeight")
-    while scrolling:
+    while True:
         driver.execute_script("window.scrollTo(0, document.documentElement.scrollHeight);")
         new_height = driver.execute_script("return document.documentElement.scrollHeight")
         if new_height == last_height:
@@ -64,7 +84,7 @@ def date_str_to_datetime(date_str: str) -> datetime:
     return date_time_obj
 
 
-def connect_to_mysql(db='stacks_db'):
+def connect_to_mysql(db='stocks_db'):
     """
     This function uses the configuration from config.py file and returns a connection the mysql. if stacks_db doesn't
     exists it create one according to stock_prices.sql file.
@@ -82,10 +102,11 @@ def connect_to_mysql(db='stacks_db'):
         with open("stock_prices.sql") as file:
             new_db = file.read()
         cursor.execute(new_db)
+        con = connector.connect(host=host, user=user, password=password)
     return con
 
 
-def init_db(db='stacks_db'):
+def init_db(db='stocks_db'):
     con = connect_to_mysql()
     cursor = con.cursor()
     cursor.execute(f"USE {db};")
