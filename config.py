@@ -1,7 +1,7 @@
 class sql_conf:
     host = 'localhost'
     user = 'root'
-    password = '123456'
+    password = ''
 
     @staticmethod
     def get_connection_info():
