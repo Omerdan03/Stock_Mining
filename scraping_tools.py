@@ -27,10 +27,10 @@ def make_soup(url: str) -> BeautifulSoup:
     return soup
 
 
-def make_soup_scrolling(url: str, show_year=False) -> BeautifulSoup:
+def make_soup_scrolling(url: str, show_date=False) -> BeautifulSoup:
     """
     This function gets a url of stocks and returns BeautifulSoup object of all the information from that web
-    :param show_year: A flag for displaying the current year when scrolling
+    :param show_date: A flag for displaying the current date when scrolling
     :param url: a url of a web page
     :return: BeautifulSoup Object of the file
     """
@@ -52,15 +52,15 @@ def make_soup_scrolling(url: str, show_year=False) -> BeautifulSoup:
             if new_height == last_height:
                 break
         last_height = new_height
-        if show_year:
-            year = get_year(BeautifulSoup(driver.page_source, "html.parser"))
-            print("Year reached: {}".format(year))
+        if show_date:
+            date = get_date(BeautifulSoup(driver.page_source, "html.parser"))
+            print(f"date reached: {date}")
     soup = BeautifulSoup(driver.page_source, "html.parser")
     driver.close()
     return soup
 
 
-def get_year(soup: BeautifulSoup) -> int:
+def get_date(soup: BeautifulSoup) -> int:
     """
     This function gets a soup object from Yahoo page and return the last year it has data inside it
     :param soup: A soup object from Yahoo page
@@ -70,7 +70,7 @@ def get_year(soup: BeautifulSoup) -> int:
     row = data_table.find_all('tr')[-1]
     date_item = row.find('span')
     date = date_str_to_datetime(date_item.text)
-    return date.year
+    return date
 
 
 def date_str_to_datetime(date_str: str) -> datetime:
@@ -83,7 +83,7 @@ def date_str_to_datetime(date_str: str) -> datetime:
     return date_time_obj
 
 
-def connect_to_mysql(db='stocks_db'):
+def connect_to_mysql(db=db_name):
     """
     This function uses the configuration from config.py file and returns a connection the mysql. if stocks_db doesn't
     exists it create one according to stock_prices.sql file.

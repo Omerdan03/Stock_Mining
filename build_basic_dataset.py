@@ -13,7 +13,7 @@ def load_all_slider_stocks(browser):
     """
     financial_header = browser.find_element_by_id('Lead-3-FinanceHeader-Proxy')
     next_stock_button = financial_header.find_elements_by_tag_name('button')[1]
-    while (next_stock_button.is_enabled()):
+    while next_stock_button.is_enabled():
         next_stock_button.click()
 
 
@@ -39,7 +39,7 @@ def main():
     yahoo_main = MAIN_URL
     con = connect_to_mysql()
     cursor = con.cursor()
-    cursor.execute(f"USE stocks_db;")
+    cursor.execute(f"USE {db_name};")
     stocks = get_full_page(yahoo_main)
     for i, stock in enumerate(stocks):
         name = stock.attrs['aria-label']
@@ -50,7 +50,8 @@ def main():
         for tab in opt.find_all('li'):
             if tab.find('span').getText() == 'Historical Data':
                 full_history_url = yahoo_main + tab.find('a').attrs['href'].split('p=')[0] + \
-                                   'period1=-3000000000&period2=3000000000&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true'
+                                   'period1=1574968152&period2=1606590552&interval=1d&filter=history&frequency=' \
+                                   '1d&includeAdjustedClose=true'
                 break
         add_query = f"INSERT INTO stock_info (stock_name, url) VALUES('{name}', '{full_history_url}');"
         try:

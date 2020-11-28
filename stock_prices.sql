@@ -6,7 +6,7 @@ CREATE TABLE `stock_price` (
   `low_price` float,
   `close_price` float,
   `adj_close_price` float,
-  `volume` int,
+  `volume` bigint,
   PRIMARY KEY (date, stock_name)
 );
 
@@ -15,4 +15,4 @@ CREATE TABLE `stock_info` (
   `url` varchar(255)
 );
 
-ALTER TABLE `stock_price` ADD FOREIGN KEY (`stock_name`) REFERENCES `stock_info` (`stock_name`);
+--ALTER TABLE `stock_price` ADD FOREIGN KEY (`stock_name`) REFERENCES `stock_info` (`stock_name`);
