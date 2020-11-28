@@ -9,6 +9,10 @@ HEADERS = ['Date', 'Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
 
 
 def calc_periods(from_date):
+    
+    """This function takes the date to scrap from for the user and return period1 and period2 so it's ready to insert 
+    inside the url"""
+    
     min_date = date.fromisoformat('1970-01-01')
     duration1 = from_date-min_date
     period1_sec = int(duration1.total_seconds())
@@ -18,6 +22,9 @@ def calc_periods(from_date):
     return period1_sec, period2_sec
 
 def calc_url_by_from_date(url, period1_sec, period2_sec):
+    
+    """This function takes the url and the start and ens periods and insert them in the relevant place in the url """
+
     prefix = url.split('?',1)[0] + '?'
     periods = 'period1=' + str(period1_sec) + '&period2=' + str(period2_sec)
     suffix = '&' + url.split('&', 2)[2]
@@ -56,6 +63,9 @@ def get_site_info(soup: BeautifulSoup) -> list:
 
 
 def main():
+    """ take 2 inputs from the user, one is date to scrap from and the other is stock name/all
+    then, calling calc_periods() and calc_url_by_from_date() to scrap the relevant urls"""
+    
     parser = argparse.ArgumentParser()
     parser.add_argument_group(title='required')
     parser.add_argument('-d', required=True, action='store', type=lambda s: datetime.datetime.strptime(s, '%Y-%m-%d'), help="scrap from this date", dest='from_date')
