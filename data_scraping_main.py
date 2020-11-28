@@ -1,8 +1,27 @@
 import csv
 from scraping_tools import *
+from datetime import date
+import argparse
 from config import *
 STOCK_URLS = "data_urls.csv"
 HEADERS = ['Date', 'Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
+
+
+def calc_periods(from_date):
+    min_date = date.fromisoformat('1970-01-01')
+    duration1 = from_date-min_date
+    period1_sec = int(duration1.total_seconds())
+    now = date.today()
+    duration2 = now-min_date
+    period2_sec = int(duration2.total_seconds())
+    return period1_sec, period2_sec
+
+
+def calc_url_by_from_date(url, period1_sec, period2_sec):
+    prefix = url.split('?', 1)[0] + '?'
+    periods = 'period1=' + str(period1_sec) + '&period2=' + str(period2_sec)
+    suffix = '&' + url.split('&', 2)[2]
+    return prefix+periods+suffix
 
 
 def read_urls_files(url_input) -> list:
@@ -38,18 +57,32 @@ def get_site_info(soup: BeautifulSoup) -> list:
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument_group(title='required')
+    parser.add_argument('-d', required=True, action='store', type=lambda s: datetime.datetime.strptime(s, '%Y-%m-%d'),
+                        help="scrap from this date", dest='from_date')
+    parser.add_argument('-sn', required=False, action='store', type=str, help="name of stock to scrap",
+                        dest='stock_name')
+    args = parser.parse_args()
+    period1_sec, period2_sec = calc_periods(args.from_date.date())
     urls = read_urls_files(STOCK_URLS)
-    for url in urls[:]:
+    if args.stock_name:
+        stock_url = next(stock for stock in urls if stock[0] == args.stock_name)
+        urls = [stock_url]
+        if not stock_url:
+            print('stock doesnt exist, try another one')
+            return
+
+    for url in urls:
         stock = url[0]
+        stock_by_date_url = calc_url_by_from_date(url[1], period1_sec, period2_sec)
         print("Making {} soup".format(stock))
-        soup = make_soup_scrolling(url[1], show_year=True)
+        soup = make_soup_scrolling(stock_by_date_url, show_year=True)
+
         if soup is None:
             continue
         info = get_site_info(soup)
         print(info)
-
-        #  TODO: save data and get deltas from last run
-        #  TODO Error handling
 
 
 if __name__ == '__main__':

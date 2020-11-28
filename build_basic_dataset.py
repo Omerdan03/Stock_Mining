@@ -52,8 +52,6 @@ def main():
                 full_history_url = yahoo_main + tab.find('a').attrs['href'].split('p=')[0] + \
                                    'period1=-3000000000&period2=3000000000&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true'
                 break
-        # browser.get(full_history_url)
-        # stock_history = get_all_historical_stock_data(browser) #do something with stock history?
         add_query = f"INSERT INTO stock_info (stock_name, url) VALUES('{name}', '{full_history_url}');"
         try:
             cursor.execute(add_query)

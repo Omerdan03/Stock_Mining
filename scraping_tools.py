@@ -30,7 +30,6 @@ def make_soup(url: str) -> BeautifulSoup:
 def make_soup_scrolling(url: str, show_year=False) -> BeautifulSoup:
     """
     This function gets a url of stocks and returns BeautifulSoup object of all the information from that web
-    :param scrolling: A flag if scrolling is needed in the site
     :param show_year: A flag for displaying the current year when scrolling
     :param url: a url of a web page
     :return: BeautifulSoup Object of the file
@@ -86,7 +85,7 @@ def date_str_to_datetime(date_str: str) -> datetime:
 
 def connect_to_mysql(db='stocks_db'):
     """
-    This function uses the configuration from config.py file and returns a connection the mysql. if stacks_db doesn't
+    This function uses the configuration from config.py file and returns a connection the mysql. if stocks_db doesn't
     exists it create one according to stock_prices.sql file.
     :return: a connection at the stacks_db database:
     """
@@ -100,8 +99,8 @@ def connect_to_mysql(db='stocks_db'):
         cursor.execute(f"CREATE DATABASE {db}")
         cursor.execute(f"USE {db};")
         with open("stock_prices.sql") as file:
-            new_db = file.read()
-        cursor.execute(new_db)
+            new_db_command = file.read()
+        cursor.execute(new_db_command)
         con = connector.connect(host=host, user=user, password=password)
     return con
 
