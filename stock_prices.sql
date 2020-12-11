@@ -15,4 +15,10 @@ CREATE TABLE `stock_info` (
   `url` varchar(255)
 );
 
+
+CREATE TABLE `stock_info` (
+  `stock_name` varchar(255) PRIMARY KEY,
+  `url` varchar(255)
+);
+
 --ALTER TABLE `stock_price` ADD FOREIGN KEY (`stock_name`) REFERENCES `stock_info` (`stock_name`);
