@@ -55,6 +55,32 @@ def get_site_info(soup: BeautifulSoup) -> list:
     return stock_data
 
 
+def get_stock_history(stock_url, period1_sec, period2_sec):
+    stock = stock_url[0]
+    stock_by_date_url = calc_url_by_from_date(stock_url[1], period1_sec, period2_sec)
+    # print("Making {} soup".format(stock))
+    soup = make_soup_scrolling(stock_by_date_url, show_date=False)
+    if soup is None:
+        return
+    info = get_site_info(soup)
+    for date in info:
+        values = list(info[date])
+        while len(values) != 6:
+            values.append('NULL')
+        add_query = f"INSERT INTO stock_price (date, stock_name, open_price, high_price, low_price, close_price, " \
+                    f"adj_close_price, volume) VALUES(DATE '{date.strftime('%Y-%m-%d')}','{stock}', {values[0]}, " \
+                    f"{values[1]}, {values[2]}, {values[3]}, {values[4]}, {values[5]});"
+        con = connect_to_mysql()
+        cursor = con.cursor()
+        cursor.execute(f"USE {db_name};")
+        try:
+            cursor.execute(add_query)
+        except connector.errors.IntegrityError:
+            pass
+        con.commit()
+        print(f"finished scrapping for {stock}")
+
+
 def main():
     """ take 2 inputs from the user, one is date to scrap from and the other is stock name/all
         then, calling calc_periods() and calc_url_by_from_date() to scrap the relevant urls"""
@@ -77,28 +103,9 @@ def main():
             print('stock doesnt exist, try another one')
             return
     for stock_url in stocks_urls:
-        stock = stock_url[0]
-        stock_by_date_url = calc_url_by_from_date(stock_url[1], period1_sec, period2_sec)
-        print("Making {} soup".format(stock))
-        soup = make_soup_scrolling(stock_by_date_url, show_date=True)
-        if soup is None:
-            continue
-        info = get_site_info(soup)
-        for date in info:
-            values = list(info[date])
-            while len(values) != 6:
-                values.append('NULL')
-            add_query = f"INSERT INTO stock_price (date, stock_name, open_price, high_price, low_price, close_price, " \
-                        f"adj_close_price, volume) VALUES(DATE '{date.strftime('%Y-%m-%d')}','{stock}', {values[0]}, " \
-                        f"{values[1]}, {values[2]}, {values[3]}, {values[4]}, {values[5]});"
-            con = connect_to_mysql()
-            cursor = con.cursor()
-            cursor.execute(f"USE {db_name};")
-            try:
-                cursor.execute(add_query)
-            except connector.errors.IntegrityError:
-                pass
-            con.commit()
+        print(f"getting history of: {stock_url[0]}")
+        x = threading.Thread(target=get_stock_history, args=(stock_url, period1_sec, period2_sec))
+        x.start()
 
 
 if __name__ == '__main__':

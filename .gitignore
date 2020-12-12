@@ -6,4 +6,6 @@
 .__pycache__
 *.zip
 *.gitignore
+*.pdf
 config.py
+__pycache__/

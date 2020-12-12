@@ -5,6 +5,7 @@ import mysql.connector as connector
 import selenium
 import time
 from config import *
+import threading
 
 
 def make_soup(url: str) -> BeautifulSoup:
@@ -21,7 +22,6 @@ def make_soup(url: str) -> BeautifulSoup:
     except selenium.common.exceptions.WebDriverException as e:
         print(e)
         return None
-    last_height = driver.execute_script("return document.documentElement.scrollHeight")
     soup = BeautifulSoup(driver.page_source, "html.parser")
     driver.close()
     return soup
