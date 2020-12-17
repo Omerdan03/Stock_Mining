@@ -4,7 +4,7 @@ import mysql.connector as connector
 
 MAIN_URL = "https://finance.yahoo.com"
 
-def get_stocks_tags(yahoo_main) -> list:
+def get_stocks_tags(yahoo_main):
     """
     This function receives the main url og yahoo finance and returns a list with BeautifulSoup objects with the items
      inside the top slider
