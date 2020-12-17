@@ -2,10 +2,37 @@ from bs4 import BeautifulSoup
 import datetime
 from selenium import webdriver
 import mysql.connector as connector
+import requests
 import selenium
 import time
+import json
 from config import *
 import threading
+
+
+def get_api_quarry(quarry):
+    url = "https://bloomberg-market-and-financial-news.p.rapidapi.com/market/auto-complete"
+    querystring = {f"query": f"{quarry}"}
+    headers = {
+        'x-rapidapi-key': f"{api_key}",
+        'x-rapidapi-host': "bloomberg-market-and-financial-news.p.rapidapi.com"
+        }
+    response = requests.request("GET", url, headers=headers, params=querystring)
+    results = json.loads(response.text)
+    return results
+
+
+def get_stock_symbols(stock_name):
+    """
+    This function receives a stock and returns a list of all the symbols of the stock in different markets
+    :return:
+    """
+    stock_info = get_api_quarry(stock_name)
+    try:
+        symbols = [market['symbol'] for market in stock_info['quote']]
+    except KeyError:
+        symbols = stock_name
+    return symbols
 
 
 def make_soup(url: str) -> BeautifulSoup:

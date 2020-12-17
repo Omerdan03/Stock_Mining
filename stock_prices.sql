@@ -12,7 +12,8 @@ CREATE TABLE `stock_price` (
 
 CREATE TABLE `stock_info` (
   `stock_name` varchar(255) PRIMARY KEY,
-  `url` varchar(255)
+  `url` varchar(255),
+  `symbols` varchar(255)
 );
 
 

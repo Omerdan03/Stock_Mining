@@ -48,7 +48,11 @@ def get_stock_url(stock, name):
     if not find_history_page:
         print(f" could not find history page for {name}")
         return -1
-    add_query = f"INSERT INTO stock_info (stock_name, url) VALUES('{name}', '{full_history_url}');"
+    stock_symbols = get_stock_symbols(name)
+    if not stock_symbols:
+        print(f" could not find symbols for {name}")
+        stock_symbols = name
+    add_query = f"INSERT INTO stock_info (stock_name, url, symbols) VALUES('{name}', '{full_history_url}', \"{stock_symbols}\");"
     try:
         cursor.execute(add_query)
     except connector.errors.IntegrityError:
