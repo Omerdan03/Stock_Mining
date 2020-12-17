@@ -9,3 +9,5 @@ class sql_conf:
 
 
 db_name = 'stocks_db'
+
+api_key = ''
